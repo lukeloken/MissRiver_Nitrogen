@@ -45,8 +45,9 @@ DamQDaily<-dplyr::full_join(DamQDaily, DamQDaily3, by='Date')
 DamQDaily[,2:ncol(DamQDaily)]<-DamQDaily[,2:ncol(DamQDaily)]/35.3147
 
 # output files
-write.table(DamQDaily, "Outputs/UMR_DamQDaily2015.csv", sep=",", row.names=F, col.names=T)
-saveRDS(DamQDaily, file = "Outputs/UMR_DamQDaily2015.rds")
+write.table(DamQDaily, "Outputs/UMR_Q_Dams_Daily2015.csv", sep=",", row.names=F, col.names=T)
+saveRDS(DamQDaily, file = "Outputs/UMR_Q_Dams_Daily2015.rds")
+
 
 
 # ###############################################
@@ -83,8 +84,8 @@ dischargeUnit <- renameNWISColumns(dischargeUnit)
 dischargeUnit$Flow_cms<-dischargeUnit$Flow /35.3147
 
 # output files
-write.table(dischargeUnit, "Outputs/UMR_QDailyAug2015.csv", sep=",", row.names=F, col.names=T)
-saveRDS(dischargeUnit, file = "Outputs/UMR_QDailyAug2015.rds")
+write.table(dischargeUnit, "Outputs/UMR_Q_USGS_DailyAug2015.csv", sep=",", row.names=F, col.names=T)
+saveRDS(dischargeUnit, file = "Outputs/UMR_Q_USGS_DailyAug2015.rds")
 
 
 # ==================================
@@ -175,6 +176,8 @@ trib_df<-trib_df[,1:7]
 names(trib_df)[1]<-'name'
 
 # output files
-write.table(trib_df, "Outputs/UMR_TribsQDailyAug2015.csv", sep=",", row.names=F, col.names=T)
-saveRDS(trib_df, file = "Outputs/UMR_TribsQDailyAug2015.rds")
+write.table(trib_df, "Outputs/UMRTribs_Q_DailyAug2015.csv", sep=",", row.names=F, col.names=T)
+saveRDS(trib_df, file = "Outputs/UMRTribs_Q_DailyAug2015.rds")
+
+
 
