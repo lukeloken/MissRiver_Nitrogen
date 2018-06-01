@@ -264,6 +264,8 @@ pool_summary2$Q_Totalin<-rowSums(pool_summary2[c('Q_MRin', 'Q_Trib')], na.rm=T)
 pool_summary2$Q_diff=pool_summary2$Q_Totalin-pool_summary2$Q_MRout
 pool_summary2$Q_percent=pool_summary2$Q_diff/pool_summary2$Q_MRout
 
+pool_summary2$U<-pool_summary2$dNO3*pool_summary2$Q_Totalin/pool_summary2$PoolArea*86.4
+pool_summary2$Vf<-pool_summary2$U/pool_summary2$NO3_start*365/1000
 
 
 #Retention model for 3Day average flows
@@ -288,6 +290,8 @@ pool_summary3DayAvg$Q_diff=pool_summary3DayAvg$Q_Totalin-pool_summary3DayAvg$Q_M
 pool_summary3DayAvg$Q_percent=pool_summary3DayAvg$Q_diff/pool_summary3DayAvg$Q_MRout
 
 
+pool_summary3DayAvg$U<-pool_summary3DayAvg$dNO3*pool_summary3DayAvg$Q_Totalin/pool_summary3DayAvg$PoolArea*86.4
+pool_summary3DayAvg$Vf<-pool_summary3DayAvg$U/pool_summary3DayAvg$NO3_start*365/1000
 
 # #############################################
 # Step 5
@@ -319,11 +323,12 @@ A<-rowMaxs(as.matrix(data.frame(delS, Potential)))
 
 pool_summary2$PercentErrorWater<- A/pool_summary2$Q_MRout
 
+
 print(pool_summary2)
 
-water_summary<-pool_summary2[c('Pool', 'Q_MRin', 'Q_MRout', 'Q_Trib', 'Q_diff', 'Q_percent', 'Q_UnsampleTrib', 'Q_WWTP', 'Q_GW', 'Q_Evap_m3PerS', 'PercentErrorWater', 'Q_GW_Per', 'Q_Evap_Per', 'Q_WWTP_Per', 'Q_UnsampleTrib_Per', 'RiverKM_start', 'RiverKM_end')]
 
-print(water_summary)
+#Subset table and save water budgets
+water_summary<-pool_summary2[c('Pool', 'Q_MRin', 'Q_MRout', 'Q_Trib', 'Q_diff', 'Q_percent', 'Q_UnsampleTrib', 'Q_WWTP', 'Q_GW', 'Q_Evap_m3PerS', 'PercentErrorWater', 'Q_GW_Per', 'Q_Evap_Per', 'Q_WWTP_Per', 'Q_UnsampleTrib_Per', 'RiverKM_start', 'RiverKM_end')]
 
 
 write.table(water_summary, file='Outputs/PoolWaterBudgets.csv', row.names=F, sep=',')
@@ -331,48 +336,59 @@ saveRDS(water_summary, file='Outputs/PoolWaterBudgets.rds')
 
 
 
+# #############################################
+# Step 5
+# Re calculate change in NO3/Turb/SPC for each pool after adding additional water source
+# Calculate difference and retention using vector match
+# #############################################
 
-
-
-#Uncertainty
-#NO3 change
+#NO3 values used for unsampled water source
+NO3min<-0
 NO3max<-6.37
+
+#Average amount of 'missing' water
 AvgQDiff<-(-1)*mean(pool_summary2$Q_diff[which(pool_summary2$Pool != 'Pepin')])
-ExtraQ<-rowSums(abs(pool_summary2[c('Q_diff', 'Q_WWTP', 'Q_UnsampleTrib')]))
 
-#Error bars using high amount of extra water (GW + Trib + WWTP)
-HighN<-(pool_summary2$NO3_start*pool_summary2$Q_Totalin + ExtraQ*NO3max)/ (ExtraQ+pool_summary2$Q_Totalin-pool_summary2$Q_Evap_m3PerS)
 
-LowN<-(pool_summary2$NO3_start*pool_summary2$Q_Totalin + ExtraQ*0)/ (ExtraQ+pool_summary2$Q_Totalin )
+# Multiple ways of bracketing retention
 
-pool_summary2$dNO3_high<- (HighN - pool_summary2$NO3_end)
-pool_summary2$dNO3_low<- (LowN - pool_summary2$NO3_end)
-
-pool_summary2$RNO3_high<-pool_summary2$dNO3_high/HighN
-pool_summary2$RNO3_low<-pool_summary2$dNO3_low/LowN
+# ExtraQ<-rowSums(abs(pool_summary2[c('Q_diff', 'Q_WWTP', 'Q_UnsampleTrib')]))
+# 
+# #Error bars using high amount of extra water (GW + Trib + WWTP)
+# HighN<-(pool_summary2$NO3_start*pool_summary2$Q_Totalin + ExtraQ*NO3max)/ (ExtraQ+pool_summary2$Q_Totalin-pool_summary2$Q_Evap_m3PerS)
+# 
+# LowN<-(pool_summary2$NO3_start*pool_summary2$Q_Totalin + ExtraQ*0)/ (ExtraQ+pool_summary2$Q_Totalin )
+# 
+# pool_summary2$dNO3_high<- (HighN - pool_summary2$NO3_end)
+# pool_summary2$dNO3_low<- (LowN - pool_summary2$NO3_end)
+# 
+# pool_summary2$RNO3_high<-pool_summary2$dNO3_high/HighN
+# pool_summary2$RNO3_low<-pool_summary2$dNO3_low/LowN
 
 #Error bars using missing water as error
-HighN_storage<-(pool_summary2$NO3_start*pool_summary2$Q_Totalin + abs(pool_summary2$Q_diff*NO3max))/ (abs(pool_summary2$Q_diff)+pool_summary2$Q_Totalin)
+# HighN_storage<-(pool_summary2$NO3_start*pool_summary2$Q_Totalin + abs(pool_summary2$Q_diff*NO3max))/ (abs(pool_summary2$Q_diff)+pool_summary2$Q_Totalin)
+# 
+# LowN_storage<-(pool_summary2$NO3_start*pool_summary2$Q_Totalin + abs(pool_summary2$Q_diff*0))/ (abs(pool_summary2$Q_diff)+pool_summary2$Q_Totalin)
+# 
+# pool_summary2$dNO3_high_storage<- HighN_storage - pool_summary2$NO3_end
+# pool_summary2$dNO3_low_storage<- LowN_storage - pool_summary2$NO3_end
+# 
+# pool_summary2$RNO3_high_storage<-pool_summary2$dNO3_high_storage/HighN_storage
+# pool_summary2$RNO3_low_storage<-pool_summary2$dNO3_low_storage/LowN_storage
+# 
+# #Error bars using average missing water as error
+# HighN_qdiff<-(pool_summary2$NO3_start*pool_summary2$Q_Totalin + AvgQDiff*NO3max)/ (AvgQDiff+pool_summary2$Q_Totalin)
+# 
+# LowN_qdiff<-(pool_summary2$NO3_start*pool_summary2$Q_Totalin + AvgQDiff*0)/ (AvgQDiff+pool_summary2$Q_Totalin)
+# 
+# pool_summary2$dNO3_high_qdiff<- HighN_qdiff - pool_summary2$NO3_end
+# pool_summary2$dNO3_low_qdiff<- LowN_qdiff - pool_summary2$NO3_end
+# 
+# pool_summary2$RNO3_high_qdiff<-pool_summary2$dNO3_high_qdiff/HighN_qdiff
+# pool_summary2$RNO3_low_qdiff<-pool_summary2$dNO3_low_qdiff/LowN_qdiff
 
-LowN_storage<-(pool_summary2$NO3_start*pool_summary2$Q_Totalin + abs(pool_summary2$Q_diff*0))/ (abs(pool_summary2$Q_diff)+pool_summary2$Q_Totalin)
 
-pool_summary2$dNO3_high_storage<- HighN_storage - pool_summary2$NO3_end
-pool_summary2$dNO3_low_storage<- LowN_storage - pool_summary2$NO3_end
-
-pool_summary2$RNO3_high_storage<-pool_summary2$dNO3_high_storage/HighN_storage
-pool_summary2$RNO3_low_storage<-pool_summary2$dNO3_low_storage/LowN_storage
-
-#Error bars using average missing water as error
-HighN_qdiff<-(pool_summary2$NO3_start*pool_summary2$Q_Totalin + AvgQDiff*NO3max)/ (AvgQDiff+pool_summary2$Q_Totalin)
-
-LowN_qdiff<-(pool_summary2$NO3_start*pool_summary2$Q_Totalin + AvgQDiff*0)/ (AvgQDiff+pool_summary2$Q_Totalin)
-
-pool_summary2$dNO3_high_qdiff<- HighN_qdiff - pool_summary2$NO3_end
-pool_summary2$dNO3_low_qdiff<- LowN_qdiff - pool_summary2$NO3_end
-
-pool_summary2$RNO3_high_qdiff<-pool_summary2$dNO3_high_qdiff/HighN_qdiff
-pool_summary2$RNO3_low_qdiff<-pool_summary2$dNO3_low_qdiff/LowN_qdiff
-
+# This is one used for the ERL submission on May 31, 2018
 #Average missing water or actual missing
 HighN_option<-(pool_summary2$NO3_start*pool_summary2$Q_Totalin + rowMaxs(as.matrix(data.frame((pool_summary2$Q_diff*(-1)), rep(AvgQDiff, nrow(pool_summary2)))), dim=c(nrow(pool_summary2), 2))*NO3max)/ (rowMaxs(as.matrix(data.frame((pool_summary2$Q_diff*(-1)), rep(AvgQDiff, nrow(pool_summary2)))), dim=c(nrow(pool_summary2), 2))+pool_summary2$Q_Totalin)
 
@@ -384,469 +400,19 @@ pool_summary2$dNO3_low_option<- LowN_option - pool_summary2$NO3_end
 pool_summary2$RNO3_high_option<-pool_summary2$dNO3_high_option/HighN_option
 pool_summary2$RNO3_low_option<-pool_summary2$dNO3_low_option/LowN_option
 
+pool_summary2$UNO3_high_option<-pool_summary2$dNO3_high_option*pool_summary2$Q_Totalin/pool_summary2$PoolArea*86.4
+pool_summary2$UNO3_low_option<-pool_summary2$dNO3_low_option*pool_summary2$Q_Totalin/pool_summary2$PoolArea*86.4
 
 
 
-# END new retention model
+#ouputs with uncertainty estimates
+write.table(pool_summary2, file='Outputs/UMR_RetentionEstimates_with_Uncertainty.csv', row.names=F, sep=',')
+saveRDS(pool_summary2, file='Outputs/UMR_RetentionEstimates_with_Uncertainty.rds')
 
-RNO3<-pool_summary2$RNO3
-RNO3[(20:25)]<-NA
 
-RSPC<-pool_summary2$RSPC
-RSPC[(20:25)]<-NA
 
-png("E:/Dropbox/FLAME_MississippiRiver/N_retention_PerPool_ErrorBars2.png", res=600, width=3.42,height=2.5197, units="in")
 
-cex=1
-par(cex=cex, cex.axis=cex)
-par(mfrow=c(1,1))
-par(tck=-0.02)
-par(ps=8)
 
-par(mar=c(2.25,2,0.5,0.25), oma=c(0,0,0,0))
-
-
-barplot(RNO3, col="grey50", ylim=c(-.45, .650), las=1, space=0, yaxt="n")
-error.bar(x=seq(0.5,26.5,1),
-          y=RNO3, 
-          upper.y=pool_summary2$RNO3_high-RNO3,
-          lower.y=RNO3-pool_summary2$RNO3_low,
-          col='black', lwd=.5)
-
-
-polygon( c(19, 19, 25, 25), c(par('usr')[3:4], par('usr')[4:3]), col="grey90", border=NA)
-barplot(RNO3, col=NA, las=1, space=0, add=T, yaxt='n')
-
-abline(h=0, lwd=0.5, lty=3)
-axis(2, mgp=c(3,0.4,0), las=1, at=seq(-.25,.5, by=0.25), labels=seq(-25, 50, by=25))
-axis(1, at=seq(1:length(Bardata$RNO3))-0.5, labels=NA, mgp=c(3,0,0), las=0)
-text(seq(1:length(Bardata$RNO3))+0.5, par("usr")[3] - 0.04, labels = labels, srt = 90, xpd = TRUE, cex=cex, pos=2)
-mtext("Pool", 1, 1.2)
-mtext(expression(paste(NO[3], " Retention (%)")), 2, 1)
-
-text(x=mean(par('usr')[1:2]-3.2), y=par('usr')[3]-0.02, 'Production', pos=3, cex=cex)
-text(x=mean(par('usr')[1:2]-3.2),  y=par('usr')[4]+0.02, 'Retention', pos=1, cex=cex)
-arrows(y0=par('usr')[3:4]+c(.1,-.1), x0=mean(par('usr')[1:2]), y1=par('usr')[3:4]+c(.02,-.02), x1=mean(par('usr')[1:2]), lwd=1.5, length=0.06)
-# text(x=22.2, y=0.48, "High tributary", cex=cex, pos=3, offset=0.1)
-# text(x=22.2, y=0.4, "flows", cex=cex, pos=3, offset=0.1)
-
-text(x=22, y=.5, "Unreliable", cex=cex, pos=1)
-text(x=22, y=.45, "retention", cex=cex, pos=1)
-text(x=22, y=.4, "estimates", cex=cex, pos=1)
-arrows(y0=-1.2, x0=17.5, y1=-1.2, x1=19, lwd=2, length=0.08)
-
-box(which='plot')
-
-dev.off()
-
-
-#Storage difference as error
-png("E:/Dropbox/FLAME_MississippiRiver/N_retention_PerPool_ErrorBars3.png", res=600, width=3.42,height=2.5197, units="in")
-
-cex=1
-par(cex=cex, cex.axis=cex)
-par(mfrow=c(1,1))
-par(tck=-0.02)
-par(ps=8)
-
-par(mar=c(2.25,2,0.5,0.25), oma=c(0,0,0,0))
-
-
-barplot(RNO3, col="grey50", ylim=c(-.45, .650), las=1, space=0, yaxt="n")
-error.bar(x=seq(0.5,26.5,1)[which(RNO3!=pool_summary2$RNO3_low_storage)],
-          y=RNO3[which(RNO3!=pool_summary2$RNO3_low_storage)], 
-          upper.y=(pool_summary2$RNO3_high_storage-RNO3)[which(RNO3!=pool_summary2$RNO3_low_storage)],
-          lower.y=(RNO3-pool_summary2$RNO3_low_storage)[which(RNO3!=pool_summary2$RNO3_low_storage)],
-          col='black', lwd=.5)
-
-
-polygon( c(19, 19, 25, 25), c(par('usr')[3:4], par('usr')[4:3]), col="grey90", border=NA)
-barplot(RNO3, col=NA, las=1, space=0, add=T, yaxt='n')
-
-abline(h=0, lwd=0.5, lty=3)
-axis(2, mgp=c(3,0.4,0), las=1, at=seq(-.25,.5, by=0.25), labels=seq(-25, 50, by=25))
-axis(1, at=seq(1:length(Bardata$RNO3))-0.5, labels=NA, mgp=c(3,0,0), las=0)
-text(seq(1:length(Bardata$RNO3))+0.5, par("usr")[3] - 0.04, labels = labels, srt = 90, xpd = TRUE, cex=cex, pos=2)
-mtext("Pool", 1, 1.2)
-mtext(expression(paste(NO[3], " Retention (%)")), 2, 1)
-
-text(x=mean(par('usr')[1:2]-3.2), y=par('usr')[3]-0.02, 'Production', pos=3, cex=cex)
-text(x=mean(par('usr')[1:2]-3.2),  y=par('usr')[4]+0.02, 'Retention', pos=1, cex=cex)
-arrows(y0=par('usr')[3:4]+c(.1,-.1), x0=mean(par('usr')[1:2]), y1=par('usr')[3:4]+c(.02,-.02), x1=mean(par('usr')[1:2]), lwd=1.5, length=0.06)
-# text(x=22.2, y=0.48, "High tributary", cex=cex, pos=3, offset=0.1)
-# text(x=22.2, y=0.4, "flows", cex=cex, pos=3, offset=0.1)
-
-text(x=22, y=.5, "Unreliable", cex=cex, pos=1)
-text(x=22, y=.45, "retention", cex=cex, pos=1)
-text(x=22, y=.4, "estimates", cex=cex, pos=1)
-arrows(y0=-1.2, x0=17.5, y1=-1.2, x1=19, lwd=2, length=0.08)
-
-box(which='plot')
-
-dev.off()
-
-
-
-
-
-#Average missing water as error
-png("E:/Dropbox/FLAME_MississippiRiver/N_retention_PerPool_ErrorBars4.png", res=600, width=3.42,height=2.5197, units="in")
-
-cex=1
-par(cex=cex, cex.axis=cex)
-par(mfrow=c(1,1))
-par(tck=-0.02)
-par(ps=8)
-
-par(mar=c(2.25,2,0.5,0.25), oma=c(0,0,0,0))
-
-
-barplot(RNO3, col="grey50", ylim=c(-.45, .650), las=1, space=0, yaxt="n")
-error.bar(x=seq(0.5,26.5,1),
-          y=RNO3, 
-          upper.y=(pool_summary2$RNO3_high_qdiff-RNO3),
-          lower.y=(RNO3-pool_summary2$RNO3_low_qdiff),
-          col='black', lwd=.5, length=0.02)
-
-
-polygon( c(19, 19, 25, 25), c(par('usr')[3:4], par('usr')[4:3]), col="grey90", border=NA)
-barplot(RNO3, col=NA, las=1, space=0, add=T, yaxt='n')
-
-abline(h=0, lwd=0.5, lty=3)
-axis(2, mgp=c(3,0.4,0), las=1, at=seq(-.25,.5, by=0.25), labels=seq(-25, 50, by=25))
-axis(1, at=seq(1:length(Bardata$RNO3))-0.5, labels=NA, mgp=c(3,0,0), las=0)
-text(seq(1:length(Bardata$RNO3))+0.5, par("usr")[3] - 0.04, labels = labels, srt = 90, xpd = TRUE, cex=cex, pos=2)
-mtext("Pool", 1, 1.2)
-mtext(expression(paste(NO[3], " Retention (%)")), 2, 1)
-
-text(x=mean(par('usr')[1:2]-3.2), y=par('usr')[3]-0.02, 'Production', pos=3, cex=cex)
-text(x=mean(par('usr')[1:2]-3.2),  y=par('usr')[4]+0.02, 'Retention', pos=1, cex=cex)
-arrows(y0=par('usr')[3:4]+c(.1,-.1), x0=mean(par('usr')[1:2]), y1=par('usr')[3:4]+c(.02,-.02), x1=mean(par('usr')[1:2]), lwd=1.5, length=0.06)
-# text(x=22.2, y=0.48, "High tributary", cex=cex, pos=3, offset=0.1)
-# text(x=22.2, y=0.4, "flows", cex=cex, pos=3, offset=0.1)
-
-text(x=22, y=.5, "Unreliable", cex=cex, pos=1)
-text(x=22, y=.45, "retention", cex=cex, pos=1)
-text(x=22, y=.4, "estimates", cex=cex, pos=1)
-arrows(y0=-1.2, x0=17.5, y1=-1.2, x1=19, lwd=2, length=0.08)
-
-box(which='plot')
-
-dev.off()
-
-
-
-
-#Average missing water or missing water as error
-png("E:/Dropbox/FLAME_MississippiRiver/N_retention_PerPool_ErrorBars5.png", res=600, width=3.42,height=2.5197, units="in")
-
-cex=1
-par(cex=cex, cex.axis=cex)
-par(mfrow=c(1,1))
-par(tck=-0.02)
-par(ps=8)
-
-par(mar=c(2.25,3,0.5,0.25), oma=c(0,0,0,0))
-
-
-barplot(RNO3, col=c(rep("grey50",3), add.alpha('lightskyblue1', .4), rep("grey50",23)), ylim=c(-.45, .7), las=1, space=0, yaxt="n")
-error.bar(x=seq(0.5,26.5,1),
-          y=RNO3, 
-          upper.y=(pool_summary2$RNO3_high_option-RNO3),
-          lower.y=(RNO3-pool_summary2$RNO3_low_option),
-          col='black', lwd=.5, length=0.02)
-
-
-polygon( c(19, 19, 25, 25), c(par('usr')[3:4], par('usr')[4:3]), col="grey90", border=NA)
-barplot(RNO3, col=NA, las=1, space=0, add=T, yaxt='n')
-
-abline(h=0, lwd=0.5, lty=3)
-axis(2, mgp=c(3,0.4,0), las=1, at=seq(-.25,.5, by=0.25), labels=seq(-25, 50, by=25))
-axis(1, at=seq(1:length(Bardata$RNO3))-0.5, labels=NA, mgp=c(3,0,0), las=0)
-text(seq(1:length(Bardata$RNO3))+0.5, par("usr")[3] - 0.04, labels = labels, srt = 90, xpd = TRUE, cex=cex, pos=2)
-mtext("Pool", 1, 1.2)
-mtext(expression(paste(NO[3], " Retention (%)")), 2, 1.5)
-
-text(x=(par('usr')[1]+0.7), y=par('usr')[3]+0.05, 'Production', pos=4, cex=cex)
-text(x=(par('usr')[1]+0.7),  y=par('usr')[4]-0.05, 'Retention', pos=4, cex=cex)
-arrows(y0=par('usr')[3:4]+c(.1,-.1), x0=(par('usr')[1]+1), y1=par('usr')[3:4]+c(.02,-.02), x1=mean(par('usr')[1]+1), lwd=1.5, length=0.06)
-# text(x=22.2, y=0.48, "High tributary", cex=cex, pos=3, offset=0.1)
-# text(x=22.2, y=0.4, "flows", cex=cex, pos=3, offset=0.1)
-
-text(x=22, y=par('usr')[4], "Unreliable", cex=cex, pos=1)
-text(x=22, y=par('usr')[4]-.075, "retention", cex=cex, pos=1)
-text(x=22, y=par('usr')[4]-.15, "estimates", cex=cex, pos=1)
-# arrows(y0=-1.2, x0=17.5, y1=-1.2, x1=19, lwd=2, length=0.08)
-
-box(which='plot')
-
-dev.off()
-
-
-
-
-
-pool_summary2$dNO3_high_option
-
-
-
-
-png("E:/Dropbox/FLAME_MississippiRiver/SPC_retention_PerPool.png", res=600, width=3.42,height=2.5197, units="in")
-
-cex=1
-par(cex=cex, cex.axis=cex)
-par(mfrow=c(1,1))
-par(tck=-0.02)
-par(ps=8)
-
-par(mar=c(2.25,2,0.5,0.25), oma=c(0,0,0,0))
-
-
-
-barplot(RSPC, ylim=c(-.250, .250), las=1, space=0, yaxt="n", col=c(rep("grey50",3), add.alpha('lightskyblue1', .4), rep("grey50",23)))
-# error.bar(x=seq(0.5,26.5,1),
-#           y=RNO3, 
-#           upper.y=pool_summary2$RNO3_high-RNO3,
-#           lower.y=RNO3-pool_summary2$RNO3_low,
-#           col='black', lwd=.5)
-
-
-polygon( c(19, 19, 25, 25), c(par('usr')[3:4], par('usr')[4:3]), col="grey90", border=NA)
-barplot(RSPC, col=NA, las=1, space=0, add=T, yaxt='n')
-
-abline(h=0, lwd=0.5, lty=3)
-axis(2, mgp=c(3,0.4,0), las=1, at=seq(-.2,.2, by=0.1), labels=seq(-20, 20, by=10))
-axis(1, at=seq(1:length(RSPC))-0.5, labels=NA, mgp=c(3,0,0), las=0)
-text(seq(1:length(RSPC))+0.5, par("usr")[3] - 0.02, labels = labels, srt = 90, xpd = TRUE, cex=cex, pos=2)
-mtext("Pool", 1, 1.2)
-
-
-
-mtext(expression(paste("SPC Retention (%)")), 2, 1)
-
-text(x=(par('usr')[1]+0.7), y=par('usr')[3]+0.05, 'Missin high-SPC water source', pos=4, cex=cex)
-text(x=(par('usr')[1]+0.7),  y=par('usr')[4]-0.05, 'Missin low-SPC water source', pos=4, cex=cex)
-arrows(y0=par('usr')[3:4]+c(.06,-.06), x0=(par('usr')[1]+1), y1=par('usr')[3:4]+c(.02,-.02), x1=mean(par('usr')[1]+1), lwd=1.5, length=0.06)
-# text(x=22.2, y=0.48, "High tributary", cex=cex, pos=3, offset=0.1)
-# text(x=22.2, y=0.4, "flows", cex=cex, pos=3, offset=0.1)
-
-text(x=22, y=par('usr')[4], "Unreliable", cex=cex, pos=1)
-text(x=22, y=par('usr')[4]-diff(par('usr')[3:4])*.08, "retention", cex=cex, pos=1)
-text(x=22, y=par('usr')[4]-diff(par('usr')[3:4])*.16, "estimates", cex=cex, pos=1)
-arrows(y0=-1.2, x0=17.5, y1=-1.2, x1=19, lwd=2, length=0.08)
-
-box(which='plot')
-
-dev.off()
-
-
-# ==============================
-# Step 5 
-# Merge tables and output single file
-# bathy_df - Volume
-# summary_df - Area and BW/I percentages
-# pool_summary - Q, R, location
-# ==============================
-
-bathy_df$Pool
-summary_df$Pool
-pool_summary2$Pool
-intersect(pool_summary2$Pool, intersect(bathy_df$Pool,summary_df$Pool))
-
-merge1<-merge(summary_df, bathy_df, by='Pool', all=T)
-merge2<-merge(merge1, pool_summary2, by='Pool', all=T)
-merge2<-merge2[order(merge2$RiverKM_start),]
-
-merge2<-merge2[which(merge2$Pool!=''),]
-#Summarize Pool Areas
-
-
-AllPools<-merge2[1,]
-AllPools[1,]<-NA
-AllPools$Pool<-"All Pools"
-AllPools$TotalArea<-sum(merge2$TotalArea, na.rm=T)
-AllPools$I_Area<-sum(merge2$TotalArea*merge2$I_Area, na.rm=T)/sum(merge2$TotalArea, na.rm=T)
-AllPools$BWc_Area<-sum(merge2$TotalArea*merge2$BWc_Area, na.rm=T)/sum(merge2$TotalArea, na.rm=T)
-# AllPools$RTurb<-(-0.833)
-
-AllPools$NO3_start<-
-  sum(c(InputChemistry$Q[1:11])*c(InputChemistry$NITRATEMG[1:11]))/
-  sum(c(InputChemistry$Q[1:11]))
-AllPools$NO3_end<-merge2$NO3_end[merge2$Pool=='p26']
-
-AllPools$dNO3<-AllPools$NO3_start-AllPools$NO3_end
-AllPools$RNO3<-AllPools$dNO3/AllPools$NO3_start
-
-AllPools$Turb_start<-
-  sum(c(InputChemistry$Q[1:11])*c(InputChemistry$TurbFNU[1:11]))/
-  sum(c(InputChemistry$Q[1:11]))
-AllPools$Turb_end<-merge2$Turb_end[merge2$Pool=='p26']
-
-AllPools$dTurb<-(AllPools$Turb_start-AllPools$Turb_end)
-AllPools$RTurb<-AllPools$dTurb/AllPools$Turb_start
-
-AllPools$SPC_start<-
-  sum(c(InputChemistry$Q[1:11])*c(InputChemistry$SpCondµScm[1:11]))/
-  sum(c(InputChemistry$Q[1:11]))
-AllPools$SPC_end<-merge2$SPC_end[merge2$Pool=='p26']
-
-AllPools$dSPC<-(AllPools$SPC_start-AllPools$SPC_end)
-AllPools$RSPC<-AllPools$dSPC/AllPools$SPC_start
-
-
-AllPools$Q_Totalin<-merge2$Q_Totalin[merge2$Pool=='p26']
-
-merge3<-rbind(merge2, AllPools)
-
-merge3$WRT_d<-merge3$Volume/merge3$Q_Totalin*(1000000/3600/24) #days
-merge3$Z_mean_m<-merge3$Volume/merge3$TotalArea
-merge3$H<-merge3$Q_Totalin/merge3$TotalArea*31.536
-
-merge3$dNload<-merge3$dNO3*merge3$Q_Totalin
-
-
-# merge3$Vf<-((-1)*merge3$Z_mean_m/merge3$WRT_d*365 * log(1-merge3$RNO3))
-# merge3$vf50<-((-1)*merge3$Z_mean_m/merge3$WRT_d*365 * log(1-0.5))
-# merge3$vf20<-((-1)*merge3$Z_mean_m/merge3$WRT_d*365 * log(1-0.2))
-# merge3$vf10<-((-1)*merge3$Z_mean_m/merge3$WRT_d*365 * log(1-0.1))
-
-# merge3$Vf<-((-1)*merge3$H * log(1-merge3$RNO3))
-# merge3$vf50<-((-1)*merge3$H * log(1-0.5))
-# merge3$vf20<-((-1)*merge3$H * log(1-0.2))
-# merge3$vf10<-((-1)*merge3$H * log(1-0.1))
-
-
-#Uptake Rate mg N per m2 per day
-# merge3$U_basedonVf<-merge3$Vf*merge3$NO3_start*1000/365
-
-merge3$U<-merge3$dNO3*merge3$Q_Totalin/merge3$TotalArea*86.4
-
-merge3$Vf<-merge3$U/merge3$NO3_start*365/1000
-
-
-U2<-merge3$U
-U2[(20:25)]<-NA
-U2<-U2[1:(length(U2)-1)]
-
-
-# merge3$U2<-merge3$dNO3*merge3$Q_Totalin/merge3$TotalArea*86.4
-merge3$UNO3_high_option<-merge3$dNO3_high_option*merge3$Q_Totalin/merge3$TotalArea*86.4
-merge3$UNO3_low_option<-merge3$dNO3_low_option*merge3$Q_Totalin/merge3$TotalArea*86.4
-
-
-
-#Average missing water or missing water as error
-png("E:/Dropbox/FLAME_MississippiRiver/N_uptake_PerPool.png", res=600, width=3.42,height=2.5197, units="in")
-
-cex=1
-par(cex=cex, cex.axis=cex)
-par(mfrow=c(1,1))
-par(tck=-0.02)
-par(ps=8)
-
-par(mar=c(2.25,3,0.5,0.25), oma=c(0,0,0,0))
-
-
-barplot(U2[1:27], col=c(rep("grey50",3), add.alpha('lightskyblue1', .4), rep("grey50",23)), ylim=c(-400, 800), las=1, space=0, yaxt="n")
-# error.bar(x=seq(0.5,26.5,1),
-#           y=merge3$U[1:27],
-#           upper.y=(merge3$UNO3_high_option[1:27]-U),
-#           lower.y=(U-merge3$UNO3_low_option[1:27]),
-#           col='black', lwd=.5, length=0.02)
-
-
-polygon( c(19, 19, 25, 25), c(par('usr')[3:4], par('usr')[4:3]), col="grey90", border=NA)
-barplot(U2, col=NA, las=1, space=0, add=T, yaxt='n')
-
-abline(h=0, lwd=0.5, lty=3)
-axis(2, mgp=c(3,0.4,0), las=1)
-# axis(2, mgp=c(3,0.4,0), las=1, at=seq(-.25,.5, by=0.25), labels=seq(-25, 50, by=25))
-axis(1, at=seq(1:length(Bardata$RNO3))-0.5, labels=NA, mgp=c(3,0,0), las=0)
-text(seq(1:length(Bardata$RNO3))+0.5, par("usr")[3] - 50, labels = labels, srt = 90, xpd = TRUE, cex=cex, pos=2)
-mtext("Pool", 1, 1.2)
-mtext(expression(paste(NO[3], " Uptake (mg N m"^"-2", " d"^"-1", ")")), 2, 1.5)
-
-text(x=(par('usr')[1]+4.7), y=par('usr')[3]+50, 'Production', pos=4, cex=cex)
-text(x=(par('usr')[1]+4.7),  y=par('usr')[4]-50, 'Uptake', pos=4, cex=cex)
-arrows(y0=par('usr')[3:4]+c(100,-100), x0=(par('usr')[1]+5), y1=par('usr')[3:4]+c(20,-20), x1=mean(par('usr')[1]+5), lwd=1.5, length=0.06)
-# text(x=22.2, y=0.48, "High tributary", cex=cex, pos=3, offset=0.1)
-# text(x=22.2, y=0.4, "flows", cex=cex, pos=3, offset=0.1)
-
-text(x=22, y=par('usr')[4], "Unreliable", cex=cex, pos=1)
-text(x=22, y=par('usr')[4]-diff(par('usr')[3:4])*.08, "uptake", cex=cex, pos=1)
-text(x=22, y=par('usr')[4]-diff(par('usr')[3:4])*.16, "estimates", cex=cex, pos=1)
-
-box(which='plot')
-
-dev.off()
-
-
-#Average missing water or missing water as error
-png("E:/Dropbox/FLAME_MississippiRiver/N_uptake_PerPool_errorbars.png", res=600, width=3.42,height=2.5197, units="in")
-
-cex=1
-par(cex=cex, cex.axis=cex)
-par(mfrow=c(1,1))
-par(tck=-0.02)
-par(ps=8)
-
-par(mar=c(2.25,3,0.5,0.25), oma=c(0,0,0,0))
-
-
-barplot(U2[1:27], col=c(rep("grey50",3), add.alpha('lightskyblue1', .4), rep("grey50",23)), ylim=c(-600, 1300), las=1, space=0, yaxt="n")
-error.bar(x=seq(0.5,26.5,1),
-          y=merge3$U2[1:27],
-          upper.y=(merge3$UNO3_high_option[1:27]-U2[1:27]),
-          lower.y=(U2[1:27]-merge3$UNO3_low_option[1:27]),
-          col='black', lwd=.5, length=0.02)
-
-
-polygon( c(19, 19, 25, 25), c(par('usr')[3:4], par('usr')[4:3]), col="grey90", border=NA)
-barplot(U2, col=NA, las=1, space=0, add=T, yaxt='n')
-
-abline(h=0, lwd=0.5, lty=3)
-axis(2, mgp=c(3,0.4,0), las=1)
-# axis(2, mgp=c(3,0.4,0), las=1, at=seq(-.25,.5, by=0.25), labels=seq(-25, 50, by=25))
-axis(1, at=seq(1:length(Bardata$RNO3))-0.5, labels=NA, mgp=c(3,0,0), las=0)
-text(seq(1:length(Bardata$RNO3))+0.5, par("usr")[3] - 50, labels = labels, srt = 90, xpd = TRUE, cex=cex, pos=2)
-mtext("Pool", 1, 1.2)
-mtext(expression(paste(NO[3], " Uptake (mg N m"^"-2", " d"^"-1", ")")), 2, 1.5)
-
-text(x=(par('usr')[1]+4.7), y=par('usr')[3]+100, 'Production', pos=4, cex=cex)
-text(x=(par('usr')[1]+4.7),  y=par('usr')[4]-100, 'Uptake', pos=4, cex=cex)
-arrows(y0=par('usr')[3:4]+c(200,-200), x0=(par('usr')[1]+5), y1=par('usr')[3:4]+c(40,-40), x1=mean(par('usr')[1]+5), lwd=1.5, length=0.06)
-# text(x=22.2, y=0.48, "High tributary", cex=cex, pos=3, offset=0.1)
-# text(x=22.2, y=0.4, "flows", cex=cex, pos=3, offset=0.1)
-
-text(x=22, y=par('usr')[4], "Unreliable", cex=cex, pos=1)
-text(x=22, y=par('usr')[4]-diff(par('usr')[3:4])*.08, "uptake", cex=cex, pos=1)
-text(x=22, y=par('usr')[4]-diff(par('usr')[3:4])*.16, "estimates", cex=cex, pos=1)
-
-box(which='plot')
-
-dev.off()
-
-#Lake pepin percent of total removal
-LoadRemoved<-merge3$dNO3*merge3$Q_Totalin
-PepinPercentofTotalLoadRemoved<-LoadRemoved[which(merge3$Pool=='Pepin')]/LoadRemoved[which(merge3$Pool=='All Pools')]
-Pool2PercentofTotalLoadRemoved<-LoadRemoved[which(merge3$Pool=='p2')]/LoadRemoved[which(merge3$Pool=='All Pools')]
-Pool3PercentofTotalLoadRemoved<-LoadRemoved[which(merge3$Pool=='p3')]/LoadRemoved[which(merge3$Pool=='All Pools')]
-print(PepinPercentofTotalLoadRemoved)
-print(Pool2PercentofTotalLoadRemoved)
-print(Pool3PercentofTotalLoadRemoved)
-
-
-print(LoadRemoved[which(merge3$Pool=='All Pools')])
-
-merge3$NO3_start*merge3$Q_Totalin
-
-# names(merge3)[names(merge3) == 'Q'] <- 'Q_cms'
-
-setwd('E:/Dropbox/FLAME_MississippiRiver')
-write.table(merge3, "UMR_Pool_Summary_Table.csv", sep=",", row.names=F, col.names=T)
-
-setwd("E:/Git_Repo/nitrogen-retention")
-saveRDS(merge3, file = "UMR_Pool_Summary_Table.rds")
 
 
 
