@@ -1,7 +1,7 @@
 
 # Code combines Triburary discharge, water chemistry, and location
 
-trib_df <- readRDS(file = "Outputs/UMR_TribsQDailyAug2015.rds")
+trib_df <- readRDS(file = "Outputs/UMRTribs_Q_DailyAug2015.rds")
 
 
 # rm(list = ls())
