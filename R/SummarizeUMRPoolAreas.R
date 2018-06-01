@@ -5,8 +5,12 @@
 
 rm(list = ls())
 options(digits=4)
+
+#Project Direcotry
+dir<-"E:/Git_Repo/MissRiver_Nitrogen"
+
 # library(foreign)
-# library(rgdal)
+library(rgdal)
 # library(rgeos)
 # library(plyr)
 # library(maptools)
@@ -19,35 +23,35 @@ options(digits=4)
 # source('R/AddAlpha.R')
 
 # Get Dam Discharge Data
-setwd("E:/Dropbox/FLAME_MississippiRiver")
-DamQ<-read.csv('USACE_Discharge_StPaulDams2015.csv', header=T, skip=6, stringsAsFactors = F)
-DamQ$DateTime<-as.POSIXct(DamQ$X, format="%d%b%Y  %H%M", tz="America/Chicago")
-DamQ<-DamQ[!is.na(DamQ$DateTime),]
-DamQ$Date<-as.Date(DamQ$X, format="%d%b%Y")
-
-DamQDaily1<-aggregate(DamQ[,3:13], by=list(DamQ$Date), FUN="mean")
-names(DamQDaily1)[1]<-"Date"
-
-DamQ_Rock<-read.csv('USACE_Discharge_RockIslandDams2015.csv', header=T, skip=0, stringsAsFactors = F)
-DamQ_Rock$Date<-as.Date(DamQ_Rock$Date, format="%Y-%m-%d")
-
-DamQ_StLouis<-read.csv('USACE_Discharge_StLouisDams2015.csv', header=T, skip=0, stringsAsFactors = F)
-DamQ_StLouis$DateTime<-as.POSIXct(DamQ_StLouis$X, format="%d%b%Y  %H%M", tz="America/Chicago")
-DamQ_StLouis<-DamQ_StLouis[!is.na(DamQ_StLouis$DateTime),]
-DamQ_StLouis$Date<-as.Date(DamQ_StLouis$X, format="%d%b%Y")
-
-DamQDaily3<-aggregate(DamQ_StLouis[,2:4], by=list(DamQ_StLouis$Date), FUN="mean")
-names(DamQDaily3)[1]<-"Date"
-
-DamQDaily<-merge(DamQDaily1, DamQ_Rock, by="Date", all=T)
-DamQDaily<-merge(DamQDaily,DamQDaily3, by="Date", all=T)
-
-#convert to cms
-DamQDaily[,2:ncol(DamQDaily)]<-DamQDaily[,2:ncol(DamQDaily)]/35.3147
-
-setwd("E:/Git_Repo/nitrogen-retention")
-saveRDS(DamQDaily, file = "UMR_DamQDaily2015.rds")
-
+# setwd("E:/Dropbox/FLAME_MississippiRiver")
+# DamQ<-read.csv('USACE_Discharge_StPaulDams2015.csv', header=T, skip=6, stringsAsFactors = F)
+# DamQ$DateTime<-as.POSIXct(DamQ$X, format="%d%b%Y  %H%M", tz="America/Chicago")
+# DamQ<-DamQ[!is.na(DamQ$DateTime),]
+# DamQ$Date<-as.Date(DamQ$X, format="%d%b%Y")
+# 
+# DamQDaily1<-aggregate(DamQ[,3:13], by=list(DamQ$Date), FUN="mean")
+# names(DamQDaily1)[1]<-"Date"
+# 
+# DamQ_Rock<-read.csv('USACE_Discharge_RockIslandDams2015.csv', header=T, skip=0, stringsAsFactors = F)
+# DamQ_Rock$Date<-as.Date(DamQ_Rock$Date, format="%Y-%m-%d")
+# 
+# DamQ_StLouis<-read.csv('USACE_Discharge_StLouisDams2015.csv', header=T, skip=0, stringsAsFactors = F)
+# DamQ_StLouis$DateTime<-as.POSIXct(DamQ_StLouis$X, format="%d%b%Y  %H%M", tz="America/Chicago")
+# DamQ_StLouis<-DamQ_StLouis[!is.na(DamQ_StLouis$DateTime),]
+# DamQ_StLouis$Date<-as.Date(DamQ_StLouis$X, format="%d%b%Y")
+# 
+# DamQDaily3<-aggregate(DamQ_StLouis[,2:4], by=list(DamQ_StLouis$Date), FUN="mean")
+# names(DamQDaily3)[1]<-"Date"
+# 
+# DamQDaily<-merge(DamQDaily1, DamQ_Rock, by="Date", all=T)
+# DamQDaily<-merge(DamQDaily,DamQDaily3, by="Date", all=T)
+# 
+# #convert to cms
+# DamQDaily[,2:ncol(DamQDaily)]<-DamQDaily[,2:ncol(DamQDaily)]/35.3147
+# 
+# setwd("E:/Git_Repo/nitrogen-retention")
+# saveRDS(DamQDaily, file = "UMR_DamQDaily2015.rds")
+# 
 
 # ================================
 # Code to calculate surface area, volume, for each of the Upper Mississippi River pools
@@ -126,9 +130,13 @@ unique_desc<-unique(all_desc)
 unique_table<-data.frame(unique_codes, unique_desc)
 
 #Save outputs
-write.table(summary_df, "UMR_Pool_Areas.csv", sep=",", row.names=F, col.names=T)
-setwd("E:/Git_Repo/nitrogen-retention")
-saveRDS(summary_df, file = "UMR_Pool_Areas.rds")
+
+setwd(dir)
+
+write.table(summary_df, "Outputs/UMR_Pool_Areas.csv", sep=",", row.names=F, col.names=T)
+saveRDS(summary_df, file = "Outputs/UMR_Pool_Areas.rds")
+
+
 
 
 # ===========================================
