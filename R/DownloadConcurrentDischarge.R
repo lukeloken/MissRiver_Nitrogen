@@ -51,11 +51,10 @@ saveRDS(DamQDaily, file = "Outputs/UMR_DamQDaily2015.rds")
 
 # ###############################################
 # Step 2
-# Determine river discharge during sample events
+# Determine river discharge during sampling campaign
 # ###############################################
 
-
-parameterCd <- c("00060", "99133") # Discharge, NO3
+parameterCd <- c("00060") # Discharge
 startDate <- "2015-07-30"
 endDate <- "2015-08-31"
 
@@ -76,7 +75,6 @@ siteNumbers<-c("05288500", # Mississippi River (Brooklyn Park, above Minneapolis
 ) 
 
 siteINFO<-readNWISsite(siteNumbers)
-dailyDataAvailable <- whatNWISdata(siteNumbers, service="uv")
 
 dischargeUnit <- readNWISdv(siteNumbers, parameterCd, startDate, endDate)
 dischargeUnit <- renameNWISColumns(dischargeUnit)
