@@ -39,3 +39,6 @@ source('R/PlotLongitudinalProfileNO3TurbSPC_withExpected.R')
 source('R/MergeWaterChemwithFlameSites.R')
 
 source('R/PlotLTRM_NO3Timeseries.R')
+
+source('R/DamDischargeComparison.R')
+source('R/UMRFlowssince1970s.R')
