@@ -30,6 +30,8 @@ data<-data[order(data$MEAS),]
 data[data==0] <- NA
 data$ltime<-as.POSIXct(data$ltime, format="%Y-%m-%d %H:%M:%S", tz="America/Chicago")
 
+names(data)[(grep("SpCnd", names(data)))]<-c('SPCuScm', 'SPCScm_t')
+
 #Subset data for NO3, Turb, and SPC (no NAS)
 NO3data<-data[!is.na(data$NITRATEM),]
 NO3data$rollNO3<-rollmean(NO3data$NITRATEM, k=25, align='center', fill=NA)
@@ -37,8 +39,8 @@ NO3data$rollNO3<-rollmean(NO3data$NITRATEM, k=25, align='center', fill=NA)
 Turbdata<-data[!is.na(data$TurbFNU),]
 Turbdata$rollTurb<-rollmean(Turbdata$TurbFNU, k=10, align='center', fill=NA)
 
-SPCdata<-data[!is.na(data$SpCndÂµS),]
-SPCdata$rollSPC<-rollmean(SPCdata$SpCndÂµS, k=10, align='center', fill=NA)
+SPCdata<-data[!is.na(data$SPCuScm),]
+SPCdata$rollSPC<-rollmean(SPCdata$SPCuScm, k=10, align='center', fill=NA)
 
 # plot(NO3data$NITRATEM)
 # lines(NO3data$rollNO3, type="l", col="red")
@@ -46,7 +48,7 @@ SPCdata$rollSPC<-rollmean(SPCdata$SpCndÂµS, k=10, align='center', fill=NA)
 # plot(Turbdata$TurbFNU)
 # lines(Turbdata$rollTurb, type="l", col="red")
 # 
-# plot(SPCdata$SpCndÂµS)
+# plot(SPCdata$SPCuScm)
 # lines(SPCdata$rollSPC, type="l", col="red")
 
 
@@ -147,7 +149,7 @@ for (dam_nu in 1:length(dam_km)){
   #Miss River Concentrations
   MR_NO3in<-median(sub$NITRATEM[1:10], na.rm=T)
   MR_Turbin<-median(sub2$TurbFNU[1:20], na.rm=T)
-  MR_SPCin<-median(sub3$SpCndÂµS[1:20], na.rm=T)
+  MR_SPCin<-median(sub3$SPCuScm[1:20], na.rm=T)
   
   #Use Water Chem table for Pool 8 metrics
   #flame data include 3 sample paths since we sampled with pool 3 times over 2 days.
@@ -201,8 +203,8 @@ for (dam_nu in 1:length(dam_km)){
   pool_summary2$Turb_end[dam_nu]<-median(sub2$TurbFNU[(length(sub2$TurbFNU)-19):length(sub2$TurbFNU)], na.rm=T)
   pool_summary3DayAvg$Turb_end[dam_nu]<-median(sub2$TurbFNU[(length(sub2$TurbFNU)-19):length(sub2$TurbFNU)], na.rm=T)
   #SPC final
-  pool_summary2$SPC_end[dam_nu]<-median(sub3$SpCndÂµS[(length(sub3$SpCndÂµS)-19):length(sub3$SpCndÂµS)], na.rm=T)
-  pool_summary3DayAvg$SPC_end[dam_nu]<-median(sub3$SpCndÂµS[(length(sub3$SpCndÂµS)-19):length(sub3$SpCndÂµS)], na.rm=T)
+  pool_summary2$SPC_end[dam_nu]<-median(sub3$SPCuScm[(length(sub3$SPCuScm)-19):length(sub3$SPCuScm)], na.rm=T)
+  pool_summary3DayAvg$SPC_end[dam_nu]<-median(sub3$SPCuScm[(length(sub3$SPCuScm)-19):length(sub3$SPCuScm)], na.rm=T)
   
   if (dam_name[dam_nu]=='8'){
     pool_summary2$NO3_end[dam_nu]<-0.768
