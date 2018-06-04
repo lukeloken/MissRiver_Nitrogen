@@ -9,6 +9,8 @@ AugQDaily_3DayAvg <- readRDS(file = "Outputs/UMR_Q_AugDaily_3DAVG_DamsOrUSGS.rds
 #Load flow data at tribs
 trib_df<-readRDS( file = "Outputs/UMRTribs_Q_DailyAug2015.rds")
 InputChemistry <- readRDS(file = "Outputs/UMR_TribuaryChemistryAndQ.rds")
+names(InputChemistry)[(grep("SpCond", names(InputChemistry)))]<-c('SPCuScm', 'SPCScm_t')
+
 
 #Get Weather and pool area data
 Weather<-readRDS('Outputs/UMR_Weather_EvapRate.rds')
@@ -172,7 +174,7 @@ for (dam_nu in 1:length(dam_km)){
     #Tributary Metrics
     Trib_NO3in<- InputChemistry$NITRATEMG[InputChemistry$poolInterval==dam_nu]
     Trib_Turbin<- InputChemistry$TurbFNU[InputChemistry$poolInterval==dam_nu]
-    Trib_SPCin<- InputChemistry$SpCondµScm[InputChemistry$poolInterval==dam_nu]
+    Trib_SPCin<- InputChemistry$SPCuScm[InputChemistry$poolInterval==dam_nu]
     Trib_Q<- InputChemistry$Q[InputChemistry$poolInterval==dam_nu]
     Trib_Q_3d<- InputChemistry$Q_3dayAvg[InputChemistry$poolInterval==dam_nu]
     
