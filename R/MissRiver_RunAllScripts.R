@@ -28,4 +28,9 @@ source('R/ModelNRetentionUMRPools.R')
 # Using Dataretrieval download USGS gauge station discharge for UMR survey
 source('R/PlotRetentionWithUncertainty.R')
 
+#Clculate expected NO3, Turb, and SPC based on conservative mixing
+source('R/CalculateExpectedNO3TurbSPC.R')
 
+# Plot longitudinal profile with expected and N load
+# Link discharge measurement with each flame measurement
+source('R/PlotLongitudinalProfileNO3TurbSPC_withExpected.R')
