@@ -8,7 +8,7 @@ dir<-"E:/Git_Repo/MissRiver_Nitrogen"
 shapedir<-"E:/Dropbox/FLAME/basemaps/shapefiles"
 locdir<-"E:/Dropbox/ArcGIS"
 flamedir<-'E:/Dropbox/FLAME_MississippiRiver/Data/2015_UMR_AllDays'
-
+datadir<-'E:/Dropbox/FLAME_MississippiRiver'
 
 #Calculate UMR Pool areas and volume
 source('R/SummarizeUMRPoolAreas.R')
@@ -34,3 +34,8 @@ source('R/CalculateExpectedNO3TurbSPC.R')
 # Plot longitudinal profile with expected and N load
 # Link discharge measurement with each flame measurement
 source('R/PlotLongitudinalProfileNO3TurbSPC_withExpected.R')
+
+#Loop through UMR data folders (datadir). Collect flame data and merge with LTER samples
+source('R/MergeWaterChemwithFlameSites.R')
+
+source('R/PlotLTRM_NO3Timeseries.R')
