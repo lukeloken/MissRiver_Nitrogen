@@ -253,5 +253,3 @@ box(which='plot')
 
 dev.off()
 
-
-

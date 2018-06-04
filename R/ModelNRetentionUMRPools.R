@@ -15,7 +15,7 @@ Weather<-readRDS('Outputs/UMR_Weather_EvapRate.rds')
 summary_df<-readRDS('Outputs/UMR_Pool_Areas.rds')
 
 #directory for linear referenced flame data and dam locations
-locdir<-"E:/Dropbox/ArcGIS"
+# locdir<-"E:/Dropbox/ArcGIS"
 
 
 # ###############################################
@@ -408,11 +408,5 @@ pool_summary2$UNO3_low_option<-pool_summary2$dNO3_low_option*pool_summary2$Q_Tot
 #ouputs with uncertainty estimates
 write.table(pool_summary2, file='Outputs/UMR_RetentionEstimates_with_Uncertainty.csv', row.names=F, sep=',')
 saveRDS(pool_summary2, file='Outputs/UMR_RetentionEstimates_with_Uncertainty.rds')
-
-
-
-
-
-
 
 

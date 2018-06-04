@@ -179,4 +179,3 @@ write.table(trib_df, "Outputs/UMRTribs_Q_DailyAug2015.csv", sep=",", row.names=F
 saveRDS(trib_df, file = "Outputs/UMRTribs_Q_DailyAug2015.rds")
 
 
-

@@ -7,10 +7,10 @@ trib_df <- readRDS(file = "Outputs/UMRTribs_Q_DailyAug2015.rds")
 # rm(list = ls())
 options(digits=4)
 
-#Project Direcotry
-dir<-"E:/Git_Repo/MissRiver_Nitrogen"
-locdir<-"E:/Dropbox/ArcGIS"
-flamedir<-'E:/Dropbox/FLAME_MississippiRiver/Data/2015_UMR_AllDays'
+# #Project Direcotry
+# dir<-"E:/Git_Repo/MissRiver_Nitrogen"
+# locdir<-"E:/Dropbox/ArcGIS"
+# flamedir<-'E:/Dropbox/FLAME_MississippiRiver/Data/2015_UMR_AllDays'
 
 
 #Get Tributary locations

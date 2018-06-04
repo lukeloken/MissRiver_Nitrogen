@@ -58,3 +58,5 @@ write.table(AugQDaily, file = "Outputs/UMR_Q_AugDailyDamsOrUSGS.csv", row.names=
 write.table(AugQDaily_2DayAvg, file = "Outputs/UMR_Q_AugDaily_2DAVG_DamsOrUSGS.csv", row.names=F, sep=',')
 write.table(AugQDaily_3DayAvg, file = "Outputs/UMR_Q_AugDaily_3DAVG_DamsOrUSGS.csv", row.names=F, sep=',')
 
+
+

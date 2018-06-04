@@ -205,5 +205,3 @@ setwd(dir)
 write.table(merge2, "Outputs/UMR_Pool_AreasAndVolumes.csv", sep=",", row.names=F, col.names=T)
 saveRDS(merge2, file = "Outputs/UMR_Pool_AreasAndVolumes.rds")
 
-#Remove everything from environment to clear memory
-rm(list = ls())
