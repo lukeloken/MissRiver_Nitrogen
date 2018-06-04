@@ -3,7 +3,6 @@ options(digits=4)
 # library(foreign)
 
 library(plyr)
-
 library(dataRetrieval)
 library(zoo)
 library(lubridate)
