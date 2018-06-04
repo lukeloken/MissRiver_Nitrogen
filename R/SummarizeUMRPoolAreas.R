@@ -5,10 +5,6 @@
 # rm(list = ls())
 options(digits=4)
 
-#Project Direcotry
-dir<-"E:/Git_Repo/MissRiver_Nitrogen"
-shapedir<-"E:/Dropbox/FLAME/basemaps/shapefiles"
-
 library(rgdal)
 library(rgeos)
 library(plyr)
