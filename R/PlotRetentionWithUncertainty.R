@@ -6,6 +6,9 @@ source('R/PlotErrorBar.R')
 
 pool_summary2 <- readRDS(file='Outputs/UMR_RetentionEstimates_with_Uncertainty.rds')
 
+summary_df<-readRDS('Outputs/UMR_Pool_Areas.rds')
+
+
 #X-axis labels
 Plabels<-sub("p", "", pool_summary2$Pool)
 Plabels<-sub("Pein", "Pepin", Plabels)
@@ -19,6 +22,8 @@ badpools<-paste('p', 18:24, sep='')
 goodvars<-c("Pool", "Date", "RiverKM_start", "RiverKM_end", "Pool_length", "PoolArea")
 
 pool_summary2[which(pool_summary2$Pool %in% badpools), -which(names(pool_summary2) %in% goodvars)]<-NA
+
+pool_summary2_witharea<-full_join(pool_summary2, summary_df, by='Pool')
 
 RNO3<-pool_summary2$RNO3
 RSPC<-pool_summary2$RSPC
@@ -252,6 +257,73 @@ text(x=22, y=par('usr')[4]-diff(par('usr')[3:4])*.08, "retention", cex=cex, pos=
 text(x=22, y=par('usr')[4]-diff(par('usr')[3:4])*.16, "estimates", cex=cex, pos=1)
 
 box(which='plot')
+
+dev.off()
+
+
+# #######################
+# Step 4
+# Drivers of NO3 retention
+# #######################
+
+
+png("Figures/N_retention_Drivers.png", res=400, width=4.2,height=6, units="in")
+
+cex=0.8
+par(cex=cex)
+cexpt=1.5
+ps=12
+par(mfrow=c(3,2))
+par(mar=c(3,1,0.5,0.5), oma=c(0,2.5,0,0))
+par(mgp=c(3,.5,0))
+par(tck=-0.03)
+
+plot(pool_summary2_witharea$RNO3*100~ pool_summary2_witharea$PoolArea, las=1, pch=16, cex.axis=cex, cex=cexpt)
+points(pool_summary2_witharea$RNO3[pool_summary2_witharea$Pool=='Pepin']*100~ pool_summary2_witharea$PoolArea[pool_summary2_witharea$Pool=='Pepin'], cex=cexpt, pch=21, col='black', bg=colors[1])
+mtext(expression(paste('Total Area (', 'km'^'2', ')')),1,2, cex=cex)
+axis(2, labels=NA, cex=cex)
+abline(h=0)
+
+
+legend('topleft',  c('Lake Pepin', 'Other Pools'), pch=c(21, 16), col='black', bty='o', pt.cex=cexpt, pt.bg=colors[1], box.col=NA)
+
+
+box(which='plot')
+
+plot(rowSums(data.frame(pool_summary2_witharea$BWc_Area, pool_summary2_witharea$I_Area))*100, pool_summary2_witharea$RNO3*100 , yaxt="n", pch=16, cex.axis=cex, cex=cexpt)
+
+axis(2, labels=NA)
+abline(h=0)
+mtext(expression(paste('Non-Channel Area (%)')),1,2, cex=cex)
+
+plot(pool_summary2_witharea$RNO3*100~ pool_summary2_witharea$NO3_start, las=1,pch=16, cex.axis=cex, cex=cexpt)
+points(pool_summary2_witharea$RNO3[pool_summary2_witharea$Pool=='Pepin']*100~ pool_summary2_witharea$NO3_start[pool_summary2_witharea$Pool=='Pepin'], cex=cexpt, pch=21, col='black', bg=colors[1])
+axis(2, labels=NA)
+abline(h=0)
+mtext(expression(paste('Incoming ', NO[3], " (mg N L"^"-1", ")")),1,2, cex=cex)
+
+plot(pool_summary2_witharea$RTurb*100, pool_summary2_witharea$RNO3*100 , yaxt="n", pch=16, cex.axis=cex, cex=cexpt)
+points(pool_summary2_witharea$RTurb[pool_summary2_witharea$Pool=='Pepin']*100, pool_summary2_witharea$RNO3[pool_summary2_witharea$Pool=='Pepin']*100, cex=cexpt, pch=21, col='black', bg=colors[1])
+mtext(expression(paste('Turbidity Removal (%)')),1,2, cex=cex)
+axis(2, labels=NA, cex=cex)
+abline(h=0)
+
+plot(pool_summary2_witharea$RNO3*100~ pool_summary2_witharea$H, las=1, pch=16, cex.axis=cex, cex=cexpt, xlim=c(100,3600), xaxt='n')
+points(pool_summary2_witharea$RNO3[pool_summary2_witharea$Pool=='Pepin']*100~ pool_summary2_witharea$H[pool_summary2_witharea$Pool=='Pepin'], cex=cexpt, pch=21, col='black', bg=colors[1], xaxt='n')
+axis(1, seq(0,3000,1000), cex.axis=cex)
+mtext(expression(paste('Hydraulic Load (m yr'^"-1", ")")),1,2, cex=cex)
+axis(2, labels=NA)
+abline(h=0)
+
+plot(pool_summary2_witharea$RNO3*100~ pool_summary2_witharea$WRT_d, yaxt="n", pch=16, cex.axis=cex, cex=cexpt)
+points(pool_summary2_witharea$RNO3[pool_summary2_witharea$Pool=='Pepin']*100~ pool_summary2_witharea$WRT_d[pool_summary2_witharea$Pool=='Pepin'], cex=cexpt, pch=21, col='black', bg=colors[1])
+mtext(expression(paste('Water Residence Time (d)')),1,2, cex=cex)
+axis(2, labels=NA)
+abline(h=0)
+# legend("topleft", inset=0.01, c('Calculated', 'Modeled'), pch=c(16,1), bty="n")
+
+
+mtext(expression(paste(NO[3], ' Retention (%)')),2,1, outer=T, cex=cex)
 
 dev.off()
 
