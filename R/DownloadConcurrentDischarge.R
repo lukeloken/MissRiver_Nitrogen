@@ -117,7 +117,8 @@ TsiteNumbers<-c("05288500",#Mississippi River
                 "05422000",#Wapsipinicon River
                 "05474000",#Skunk River
                 "05508000",#Salt River
-                "05595000"#Kaskaskia River
+                "05595000",#Kaskaskia River
+                "03612600"#Ohio River
 )
 
 
@@ -142,7 +143,8 @@ TribNames<-c('Mississippi River',
              'Wapsipinicon River',
              'Skunk River',
              'Salt River',
-             'Kaskaskia River'
+             'Kaskaskia River',
+             'Ohio River'
              )
 
 tribtable<-cbind(TribNames, TsiteNumbers)
