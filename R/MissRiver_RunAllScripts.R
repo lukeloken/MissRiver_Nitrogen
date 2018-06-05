@@ -46,3 +46,10 @@ source('R/DamDischargeComparison.R')
 
 #Compare 2015 flows to historic conditions at USGS gauge stations along UMR. 
 source('R/UMRFlowssince1970s.R')
+
+
+#Calcualte retention for Pool 8 all dates
+source('R/ModelNRetentionPool8.R')
+
+#Plot NO3 retention in Pool 8
+source('R/PlotRetentionPool8.R')
