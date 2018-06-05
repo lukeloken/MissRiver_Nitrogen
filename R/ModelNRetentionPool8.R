@@ -220,7 +220,7 @@ for (row in c(unique(SampleChemData$group), length(unique(SampleChemData$group))
   } else {print('Missing Data')}
 }
 pool_summary$Date<-as.Date(pool_summary$Date)
-pool_summary$RR_pct<-pool_summary$RR_Q/pool_summary$MR_Q
+pool_summary$RR_pct<-pool_summary$RR_Q/pool_summary$Dam8_Q 
 pool_summary[length(unique(SampleChemData$group))+1,10]<-1
 pool_summary[length(unique(SampleChemData$group))+2,10]<-1
 pool_summary<-pool_summary[order(pool_summary$Date),]
