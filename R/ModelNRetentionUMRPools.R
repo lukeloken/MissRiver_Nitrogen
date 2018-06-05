@@ -14,7 +14,7 @@ names(InputChemistry)[(grep("SpCond", names(InputChemistry)))]<-c('SPCuScm', 'SP
 
 #Get Weather and pool area data
 Weather<-readRDS('Outputs/UMR_Weather_EvapRate.rds')
-summary_df<-readRDS('Outputs/UMR_Pool_Areas.rds')
+merge2 <- readRDS(file = "Outputs/UMR_Pool_AreasAndVolumes.rds")
 
 #directory for linear referenced flame data and dam locations
 # locdir<-"E:/Dropbox/ArcGIS"
@@ -235,9 +235,11 @@ pool_summary2$Pool[pool_summary2$Pool!='Pepin'& !is.na(pool_summary2$Pool)]<-
 pool_summary3DayAvg$Pool[pool_summary3DayAvg$Pool!='Pepin'& !is.na(pool_summary3DayAvg$Pool)]<-
   paste("p", pool_summary3DayAvg$Pool[pool_summary3DayAvg$Pool!='Pepin'& !is.na(pool_summary3DayAvg$Pool)], sep="")
 
-#add pool area
-pool_summary2$PoolArea<-summary_df$TotalArea[match(pool_summary2$Pool, summary_df$Pool)]
-pool_summary3DayAvg$PoolArea<-summary_df$TotalArea[match(pool_summary3DayAvg$Pool, summary_df$Pool)]
+#add pool area and volume
+pool_summary2$PoolArea<-merge2$TotalArea[match(pool_summary2$Pool, merge2$Pool)]
+pool_summary2$Volume<-merge2$Volume[match(pool_summary2$Pool, merge2$Pool)]
+pool_summary3DayAvg$PoolArea<-merge2$TotalArea[match(pool_summary3DayAvg$Pool, merge2$Pool)]
+pool_summary3DayAvg$Volume<-merge2$Volume[match(pool_summary3DayAvg$Pool, merge2$Pool)]
 
 
 # #############################################
@@ -268,8 +270,17 @@ pool_summary2$Q_Totalin<-rowSums(pool_summary2[c('Q_MRin', 'Q_Trib')], na.rm=T)
 pool_summary2$Q_diff=pool_summary2$Q_Totalin-pool_summary2$Q_MRout
 pool_summary2$Q_percent=pool_summary2$Q_diff/pool_summary2$Q_MRout
 
+
+#Calculate other spiraling metrics
 pool_summary2$U<-pool_summary2$dNO3*pool_summary2$Q_Totalin/pool_summary2$PoolArea*86.4
 pool_summary2$Vf<-pool_summary2$U/pool_summary2$NO3_start*365/1000
+
+pool_summary2$WRT_d<-pool_summary2$Volume/pool_summary2$Q_Totalin*(1000000/3600/24) #days
+pool_summary2$Z_mean_m<-pool_summary2$Volume/pool_summary2$PoolArea
+pool_summary2$H<-pool_summary2$Q_Totalin/pool_summary2$PoolArea*31.536
+
+pool_summary2$dNload<-pool_summary2$dNO3*pool_summary2$Q_Totalin
+
 
 
 #Retention model for 3Day average flows
@@ -296,6 +307,13 @@ pool_summary3DayAvg$Q_percent=pool_summary3DayAvg$Q_diff/pool_summary3DayAvg$Q_M
 
 pool_summary3DayAvg$U<-pool_summary3DayAvg$dNO3*pool_summary3DayAvg$Q_Totalin/pool_summary3DayAvg$PoolArea*86.4
 pool_summary3DayAvg$Vf<-pool_summary3DayAvg$U/pool_summary3DayAvg$NO3_start*365/1000
+
+pool_summary3DayAvg$WRT_d<-pool_summary3DayAvg$Volume/pool_summary3DayAvg$Q_Totalin*(1000000/3600/24) #days
+pool_summary3DayAvg$Z_mean_m<-pool_summary3DayAvg$Volume/pool_summary3DayAvg$PoolArea
+pool_summary3DayAvg$H<-pool_summary3DayAvg$Q_Totalin/pool_summary3DayAvg$PoolArea*31.536
+
+pool_summary3DayAvg$dNload<-pool_summary3DayAvg$dNO3*pool_summary3DayAvg$Q_Totalin
+
 
 # #############################################
 # Step 5
