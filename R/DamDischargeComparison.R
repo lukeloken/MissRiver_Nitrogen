@@ -264,13 +264,14 @@ tableS1$SPC<-InputChemistry$SPCuScm[match( tableS1$River, InputChemistry$Sample.
 
 
 tableS1$MRin<-pool_summary2$Q_MRin[match(tableS1$PoolEntry, gsub('p', '', pool_summary2$Pool))]
-tableS1$MRin[tableS1$River=='Missouri River']<-StLouis$`07010000`[which(StLouis$Date==tableS1$SampleDate[which(tableS1$River=='Missouri River')])]
+
+# tableS1$MRin[tableS1$River=='Missouri River']<-StLouis$`07010000`[which(StLouis$Date==tableS1$SampleDate[which(tableS1$River=='Missouri River')])]- tableS1$Q_SampleDate[which(tableS1$River=='Missouri River')]
+
+tableS1$MRin[tableS1$River=='Missouri River']<-Pool26$'05587450'[which(Pool26$Date==tableS1$SampleDate[which(tableS1$River=='Missouri River')])]
+
 tableS1$MRin[tableS1$River=='Ohio River']<-Thebes$`07022000`[which(Thebes$Date==tableS1$SampleDate[which(tableS1$River=='Ohio River')])]
 
-
 tableS1$Q_Percent<-NA
-
-
 
 tableS1$Q_Percent <- (tableS1$Q_SampleDate/(tableS1$MRin+tableS1$Q_SampleDate))
 
