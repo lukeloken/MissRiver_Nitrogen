@@ -38,7 +38,11 @@ source('R/PlotLongitudinalProfileNO3TurbSPC_withExpected.R')
 #Loop through UMR data folders (datadir). Collect flame data and merge with LTER samples
 source('R/MergeWaterChemwithFlameSites.R')
 
+#Load LTRM NO3 data, merge with LTER data and plot timeseries
 source('R/PlotLTRM_NO3Timeseries.R')
 
+#Compare flows at UMR dams using all of 2015 data. Export water budget and figure
 source('R/DamDischargeComparison.R')
+
+#Compare 2015 flows to historic conditions at USGS gauge stations along UMR. 
 source('R/UMRFlowssince1970s.R')
