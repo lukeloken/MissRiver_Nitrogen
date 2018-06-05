@@ -9,6 +9,10 @@ library(dplyr)
 GoodTribNames<-c("Minnesota River", "Saint Croix River", "Chippewa River", "Root River", "Wisconsin River", "Maquoketa River", "Rock River", "Iowa River", "Des Moines River", "Illinois River")  
 PoolNu<-c(2, 3, 4, 9, 11, 14, 16, 18, 20, 25)
 
+InputChemistry <- readRDS(file = "Outputs/UMR_TribuaryChemistryAndQ.rds")
+
+pool_summary2<- readRDS(file='Outputs/UMR_RetentionEstimates_with_Uncertainty.rds')
+
 #MissRiver Discharage at dams
 DamQDaily <- readRDS(file = "Outputs/UMR_Q_Dams_Daily2015.rds")
 summary(DamQDaily)
@@ -52,6 +56,8 @@ Pool5A<-UMR_Q[c('Date', '05378500')]
 Pool13<-UMR_Q[c('Date', '05420500')]
 Pool19<-UMR_Q[c('Date', '05474500')]
 Pool26<-UMR_Q[c('Date', '05587450')]
+StLouis<-UMR_Q[c('Date', '07010000')]
+Thebes<-UMR_Q[c('Date','07022000')]
 
 # ################################
 # Get Trib discharge from devtools
@@ -79,13 +85,14 @@ TsiteNumbers<-c("05288500",#Mississippi River
                 "05422000",#Wapsipinicon River
                 "05474000",#Skunk River
                 "05508000",#Salt River
-                "05595000"#Kaskaskia River
+                "05595000",#Kaskaskia River
+                "03612600"#Ohio River
 )
 
 
 TribNames<-c('Mississippi River',
              'Minnesota River',
-             'St. Croix River',
+             'Saint Croix River',
              'Chippewa River',
              'Black River Upper',
              'LaCrosse River',
@@ -104,7 +111,8 @@ TribNames<-c('Mississippi River',
              'Wapsipinicon River',
              'Skunk River',
              'Salt River',
-             'Kaskaskia River'
+             'Kaskaskia River', 
+             'Ohio River'
 )
 
 tribtable<-cbind(TribNames, TsiteNumbers)
@@ -136,7 +144,7 @@ trib_list[['Zumbro River']]<-Z_df
 trib_df <- ldply(trib_list, data.frame)[,1:7]
 trib_widedf<-spread(trib_df[,c('.id', 'Date', 'Flow_cms')], key=.id, value=Flow_cms)
 
-trib_shortdf<-trib_widedf[c('Date', "Minnesota River", "St. Croix River", "Chippewa River", "Root River", "Wisconsin River", "Maquoketa River", "Rock River", "Iowa River Confluence", "Des Moines River", "Illinois River")  ]
+trib_shortdf<-trib_widedf[c('Date', "Minnesota River", "Saint Croix River", "Chippewa River", "Root River", "Wisconsin River", "Maquoketa River", "Rock River", "Iowa River Confluence", "Des Moines River", "Illinois River")  ]
 
 summary(trib_shortdf)
 names(trib_shortdf)<-c('Date', GoodTribNames)
@@ -230,39 +238,48 @@ PercentSummary$Dam<-gsub('DAM', '', PercentSummary$Dam)
 names(PercentSummary)[1]<-c('Pool')
 print(PercentSummary)
 
-write.table(PercentSummary, file='Outputs/2015FlowComparison.csv', row.names=F, sep=',')
-saveRDS(PercentSummary, 'Outputs/2015FlowComparison.rds')
+write.table(PercentSummary, file='Outputs/2015DamFlowComparison.csv', row.names=F, sep=',')
+saveRDS(PercentSummary, 'Outputs/2015DamFlowComparison.rds')
+
+
+#Create Table S1 for paper
+
+tribs_forS1<-trib_widedf[c('Date', "Mississippi River", "Minnesota River", "Saint Croix River", "Chippewa River", "Root River", "Wisconsin River", "Maquoketa River", "Rock River", "Iowa River Confluence", "Des Moines River", "Illinois River", 'Missouri River', 'Ohio River')  ]
+
+MeanQ_2015<-colMeans(tribs_forS1[,-1], na.rm=T)
+
+tableS1<-data.frame(River=names(MeanQ_2015), MeanQ=MeanQ_2015, row.names=NULL)
+tableS1$River<-gsub(' Confluence', '', tableS1$River)
+
+tableS1$PoolEntry<-c(1,2,3,4,8,10,13,16,18,20,26,'OR', 'OR')
+
+tableS1$SampleDate<-InputChemistry$DateTime[match( tableS1$River, InputChemistry$Sample.Notes)]
+
+tableS1$Q_SampleDate<-InputChemistry$Q[match(tableS1$River, InputChemistry$Sample.Notes)]
+
+tableS1$NO3<-InputChemistry$NITRATEMG[match( tableS1$River, InputChemistry$Sample.Notes)]
+tableS1$Turb<-InputChemistry$TurbFNU[match( tableS1$River, InputChemistry$Sample.Notes)]
+
+tableS1$SPC<-InputChemistry$SPCuScm[match( tableS1$River, InputChemistry$Sample.Notes)]
+
+
+tableS1$MRin<-pool_summary2$Q_MRin[match(tableS1$PoolEntry, gsub('p', '', pool_summary2$Pool))]
+tableS1$MRin[tableS1$River=='Missouri River']<-StLouis$`07010000`[which(StLouis$Date==tableS1$SampleDate[which(tableS1$River=='Missouri River')])]
+tableS1$MRin[tableS1$River=='Ohio River']<-Thebes$`07022000`[which(Thebes$Date==tableS1$SampleDate[which(tableS1$River=='Ohio River')])]
+
+
+tableS1$Q_Percent<-NA
 
 
 
+tableS1$Q_Percent <- (tableS1$Q_SampleDate/(tableS1$MRin+tableS1$Q_SampleDate))
 
-#old code
+tableS1$Q_Percent[which(tableS1$River =='Mississippi River')]<-1
 
-# summary(QPercent)
-# PercentSummary<-data.frame(Dam=names(QPercent)[3:26])
-# PercentSummary$Qin<-colMeans(Q2015[,2:25], na.rm=T)
-# PercentSummary$Qout<-colMeans(Q2015[,3:26], na.rm=T)
-# 
-# PercentSummary$Qtrib<-NA
-# PercentSummary$Qcombined<-colMeans(Qcombined[3:26], na.rm=T)
-# 
-# PercentSummary$meanPercent <- colMeans(QPercent[,3:26], na.rm=T)
-# PercentSummary$median <- colMedians(as.matrix(QPercent[,3:26]), na.rm=T)
+tableS1_out<-tableS1[c('River', 'PoolEntry', 'MeanQ', 'SampleDate', 'Q_SampleDate', 'Q_Percent', 'NO3', 'Turb', 'SPC')]
 
+tableS1_out$River<-gsub(' River', '', tableS1_out$River)
 
-
-
-
-# Combine discharge for pools with major tributary
-# Q2015$Pool2In<-Q2015$DAM1+Q2015$`Minnesota River`
-# Q2015$Pool3In<-Q2015$DAM2+Q2015$`Saint Croix River`
-# Q2015$Pool4In<-Q2015$DAM3+Q2015$`Chippewa River`
-# Q2015$Pool8In<-Q2015$DAM7+Q2015$`Root River`
-# Q2015$Pool10In<-Q2015$DAM9+Q2015$`Wisconsin River`
-# Q2015$Pool13In<-Q2015$DAM12+Q2015$`Maquoketa River`
-# Q2015$Pool16In<-Q2015$DAM14+Q2015$`Rock River`
-# Q2015$Pool18In<-Q2015$DAM17+Q2015$`Iowa River`
-# Q2015$Pool20In<-Q2015$DAM19+Q2015$`Des Moines River`
-# Q2015$Pool26In<-Q2015$DAM25+Q2015$`Illinois River`
-
+saveRDS(tableS1_out, file = "Outputs/UMR_Tribuary_SummaryTable.rds")
+write.table(tableS1_out, file = "Outputs/UMR_Tribuary_SummaryTable.csv", row.names=F, sep=',')
 
