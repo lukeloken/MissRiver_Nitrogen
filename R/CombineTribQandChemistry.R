@@ -28,13 +28,17 @@ tribs2<-rbind(tribs2, tribs_add)
 
 tribs2<-tribs2[order(tribs2$MEAS, decreasing=FALSE),]
 
-
-
-TribChemistry<-read.csv(paste(flamedir, '/UMR2015_AllWaterChemSamples.csv', sep=''), header=T, stringsAsFactors = F)
-
-TribChemistry2<-  TribChemistry[TribChemistry$Sample.Notes %in%  c(unique(trib_df$name), 'UofM-Bridge') ,]
+#Get Tributary chemistry and flame data
+AllMissMerged <- readRDS(file='Outputs/MissRiver_WaterChem_FlameLTER.rds')
+TribChemistry2<-  AllMissMerged[AllMissMerged$Sample.Notes %in%  c(unique(trib_df$name), 'UofM-Bridge') ,]
 TribChemistry2$DateTime<-as.Date(TribChemistry2$DateTime, format="%m/%d/%Y")
 TribChemistry2$Sample.Notes[which(TribChemistry2$Sample.Notes=='UofM-Bridge')]<-'Mississippi River'
+TribChemistry2<-TribChemistry2[which(TribChemistry2$DateTime<='2015-08-14' & TribChemistry2$DateTime>='2015-07-31'),]
+
+# TribChemistry<-read.csv(paste(flamedir, '/UMR2015_AllWaterChemSamples.csv', sep=''), header=T, stringsAsFactors = F)
+# TribChemistry2<-  TribChemistry[TribChemistry$Sample.Notes %in%  c(unique(trib_df$name), 'UofM-Bridge') ,]
+# TribChemistry2$DateTime<-as.Date(TribChemistry2$DateTime, format="%m/%d/%Y")
+# TribChemistry2$Sample.Notes[which(TribChemistry2$Sample.Notes=='UofM-Bridge')]<-'Mississippi River'
 
 TribChemistry2$Q<-NA
 TribChemistry2$Q_2dayAvg<-NA
