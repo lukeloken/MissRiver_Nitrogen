@@ -60,6 +60,7 @@ InputChemistry<-TribChemistry2[TribChemistry2$Sample.Notes %in% Inputs,]
 InputChemistry$riverkm[match(Inputs,InputChemistry$Sample.Notes)]<-tribs2$riverkm[match(Inputs,tribs2$NAME)]
 InputChemistry$riverkm[which(InputChemistry$Sample.Notes=='Mississippi River')]<-0
 
+names(InputChemistry)[(grep("SpCond", names(InputChemistry)))]<-c('SPCuScm', 'SPCScm_t')
 
 saveRDS(InputChemistry, file = "Outputs/UMR_TribuaryChemistryAndQ.rds")
 write.table(InputChemistry, file = "Outputs/UMR_TribuaryChemistryAndQ.csv", row.names=F, sep=',')
