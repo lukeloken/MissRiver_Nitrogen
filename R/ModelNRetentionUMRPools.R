@@ -9,7 +9,6 @@ AugQDaily_3DayAvg <- readRDS(file = "Outputs/UMR_Q_AugDaily_3DAVG_DamsOrUSGS.rds
 #Load flow data at tribs
 trib_df<-readRDS( file = "Outputs/UMRTribs_Q_DailyAug2015.rds")
 InputChemistry <- readRDS(file = "Outputs/UMR_TribuaryChemistryAndQ.rds")
-names(InputChemistry)[(grep("SpCond", names(InputChemistry)))]<-c('SPCuScm', 'SPCScm_t')
 
 
 #Get Weather and pool area data
