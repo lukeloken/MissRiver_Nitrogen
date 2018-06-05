@@ -11,9 +11,6 @@ library(maptools)
 #Select file name
 file<-'UMR_AllDays_ChannelOnly_Centered'
 
-#Read in N2O Data
-setwd(locdir, '/Data/2015_UMR_AllDays')
-
 N2Odata<-read.csv(paste(datadir, '/Data/2015_UMR_AllDays/N2O_Sat_2015_withTime.csv', sep=''), header=TRUE)
 summary(N2Odata)
 
@@ -45,7 +42,7 @@ saveRDS(newdata, file = "Outputs/UMRLinearReference_withN20.rds")
 #Subset to only look at Lake Pepin
 UpperPepinData<-newdata[newdata$riverkm < 135 & newdata$riverkm>112,]
 
-png("E:/Dropbox/FLAME_MississippiRiver/LakePepin_threepanel.png", res=200, width=3,height=3.5, units="in")
+png("Figures/LakePepin_threepanel.png", res=200, width=3,height=3.5, units="in")
 
 par(mfrow=c(3,1))
 par(mar=c(0.75,0.5,0,.5), oma=c(1.5,2,0.5,0))
