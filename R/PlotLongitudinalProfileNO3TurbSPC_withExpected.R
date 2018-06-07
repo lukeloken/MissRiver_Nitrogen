@@ -19,7 +19,7 @@ data3<-data2[data2$TurbFNU>0,]
 #Load expectations and Q
 expected<-readRDS(file = "Outputs/UMR_ExpectedNO3Turb.rds")
 TribQ<-expected
-TribQ$name2<-c("MS", "MN", "SC", "Ch", "Rt", "WI", "MK", "Rk", "IA", "DM", "IL", "MO")
+TribQ$name2<-c("MS", "MN", "SC", "Ch", "Rt", "WI", "MK", "Rk", "IA", "DM", "IL", "MO", 'OH')
 TribQ<-TribQ[-which(TribQ$Sample.Notes %in% c("Mississippi River", "Maquoketa River")),]
 
 
