@@ -1,14 +1,13 @@
 
 # ###########################################################
 # Code to download all FLAME and LTER lab data and merge
-# Code looks in Dropbox/FlameMississippi River subdirectories
-# Will only currently work on Loken Desktop
+# Code looks in github/Data/FlameSamples directory 
 # ###########################################################
 
 library(gtools)
 
 # get LTER chemlab data
-# This file needs to be placed in project directory/Data
+# This file needs to be placed in project githubrepository/Data
 # File must start with 'LTER_waterchem' and should contain the data of download
 # File must also be a '.csv' and in the standard download format from chemlab
 
@@ -37,26 +36,19 @@ for (test in tests){
 
 
 
-# Get Mississippi River Data
+# Get Mississippi River Flame Data from sample locations
 # Look in Loken Desktop Dropbox/FLAME_MississippiRiver folder
+files<-list.files('Data/FlameSamples')
 
-directories<-list.files(paste(datadir, '/Data', sep=''))
-# allcsv<-data.frame()
 k<-1
-for (k in 1:length(directories)){
-  dir<-paste(datadir, '/Data/', directories[k], sep="")
-  list<-list.files(paste(dir, sep=""))
-  download<-list[grep('_Samples', list, ignore.case=T)]
-  if(length(download)>=1){
-    csv<-read.csv(paste(dir, download, sep="/"), header=T, stringsAsFactors = F)
-    
+for (k in 1:length(files)){
+  dir<-paste('Data/FlameSamples/', files[k], sep="")
+    csv<-read.csv(dir, header=T, stringsAsFactors = F)
     if (k==1){
       allcsv<-csv}
     if (k>1){
       allcsv<-smartbind(allcsv, csv, fill=NA)}
   }
-}
-
 
 #Mississippi River data were saved in Central Time
 allcsv$DateTime<-as.POSIXct(allcsv$DateTime, format= "%Y-%m-%d %H:%M:%S", tz="America/Chicago")
