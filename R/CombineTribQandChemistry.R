@@ -35,10 +35,6 @@ TribChemistry2$DateTime<-as.Date(TribChemistry2$DateTime, format="%m/%d/%Y")
 TribChemistry2$Sample.Notes[which(TribChemistry2$Sample.Notes=='UofM-Bridge')]<-'Mississippi River'
 TribChemistry2<-TribChemistry2[which(TribChemistry2$DateTime<='2015-08-14' & TribChemistry2$DateTime>='2015-07-31'),]
 
-# TribChemistry<-read.csv(paste(flamedir, '/UMR2015_AllWaterChemSamples.csv', sep=''), header=T, stringsAsFactors = F)
-# TribChemistry2<-  TribChemistry[TribChemistry$Sample.Notes %in%  c(unique(trib_df$name), 'UofM-Bridge') ,]
-# TribChemistry2$DateTime<-as.Date(TribChemistry2$DateTime, format="%m/%d/%Y")
-# TribChemistry2$Sample.Notes[which(TribChemistry2$Sample.Notes=='UofM-Bridge')]<-'Mississippi River'
 
 TribChemistry2$Q<-NA
 TribChemistry2$Q_2dayAvg<-NA
@@ -64,7 +60,9 @@ InputChemistry<-TribChemistry2[TribChemistry2$Sample.Notes %in% Inputs,]
 InputChemistry$riverkm[match(Inputs,InputChemistry$Sample.Notes)]<-tribs2$riverkm[match(Inputs,tribs2$NAME)]
 InputChemistry$riverkm[which(InputChemistry$Sample.Notes=='Mississippi River')]<-0
 
-names(InputChemistry)[(grep("SpCond", names(InputChemistry)))]<-c('SPCuScm', 'SPCScm_t')
+InputChemistry<-InputChemistry[order(InputChemistry$riverkm),]
+
+# names(InputChemistry)[(grep("SpCond", names(InputChemistry)))]<-c('SPCuScm', 'SPCScm_t')
 
 saveRDS(InputChemistry, file = "Outputs/UMR_TribuaryChemistryAndQ.rds")
 write.table(InputChemistry, file = "Outputs/UMR_TribuaryChemistryAndQ.csv", row.names=F, sep=',')
