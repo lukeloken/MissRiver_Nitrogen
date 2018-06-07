@@ -2,7 +2,6 @@
 #Model Expected Concentration across distance
 
 InputChemistry <- readRDS(file = "Outputs/UMR_TribuaryChemistryAndQ.rds")
-names(InputChemistry)[(grep("SpCond", names(InputChemistry)))]<-c('SPCuScm', 'SPCScm_t')
 
 Missourikm<-InputChemistry$riverkm[InputChemistry$Sample.Notes=='Missouri River']
 
