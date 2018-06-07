@@ -8,8 +8,8 @@ setwd("E:/Git_Repo/MissRiver_Nitrogen")
 shapedir<-"E:/Dropbox/FLAME/basemaps/shapefiles" # contains Pool shapefiles (bathy and area)
 locdir<-"E:/Dropbox/ArcGIS" #contains linear referenced tables (data, tribs, dams)
 
-datadir<-'E:/Dropbox/FLAME_MississippiRiver' #Contains most sample data
-datadir_dup<-'E:/Dropbox/FLAME_MississippiRiver_Duplicate' #Contains sample data for UMR survey
+# datadir<-'E:/Dropbox/FLAME_MississippiRiver' #Contains most sample data
+# datadir_dup<-'E:/Dropbox/FLAME_MississippiRiver_Duplicate' #Contains sample data for UMR survey
 # dir<-"E:/Git_Repo/MissRiver_Nitrogen"
 # flamedir<-'E:/Dropbox/FLAME_MississippiRiver/Data/2015_UMR_AllDays'
 
@@ -40,8 +40,6 @@ source('R/CalculateExpectedNO3TurbSPC.R')
 # Plot longitudinal profile with expected and N load
 # Link discharge measurement with each flame measurement
 source('R/PlotLongitudinalProfileNO3TurbSPC_withExpected.R')
-
-
 
 #Load LTRM NO3 data, merge with LTER data and plot timeseries
 source('R/PlotLTRM_NO3Timeseries.R')
