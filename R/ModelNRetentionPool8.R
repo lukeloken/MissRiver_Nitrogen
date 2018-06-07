@@ -36,7 +36,6 @@ Dam8Q$Flow_cms<-Dam8Q$INST.VAL/35.3147
 AllMissMerged <- readRDS(file='Outputs/MissRiver_WaterChem_FlameLTER.rds')
 WaterChemData <- AllMissMerged
 
-# WaterChemData<-read.csv(paste(datadir, '/MissRiverFlameLabMerged.csv', sep=''), header=T, stringsAsFactors = F)
 WaterChemData$Date<-as.Date(WaterChemData$DateTime, format="%Y-%m-%d")
 
 WaterChemData$NO3AVG<-rowMeans(data.frame(WaterChemData$'NO3 NO2'/1000, WaterChemData$NITRATEMG), na.rm=T)
