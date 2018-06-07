@@ -4,17 +4,23 @@ rm(list = ls())
 setwd("E:/Git_Repo/MissRiver_Nitrogen")
 
 #Project Direcotries
-dir<-"E:/Git_Repo/MissRiver_Nitrogen"
-shapedir<-"E:/Dropbox/FLAME/basemaps/shapefiles"
-locdir<-"E:/Dropbox/ArcGIS"
-flamedir<-'E:/Dropbox/FLAME_MississippiRiver/Data/2015_UMR_AllDays'
-datadir<-'E:/Dropbox/FLAME_MississippiRiver'
+
+shapedir<-"E:/Dropbox/FLAME/basemaps/shapefiles" # contains Pool shapefiles (bathy and area)
+locdir<-"E:/Dropbox/ArcGIS" #contains linear referenced tables (data, tribs, dams)
+
+datadir<-'E:/Dropbox/FLAME_MississippiRiver' #Contains most sample data
+datadir_dup<-'E:/Dropbox/FLAME_MississippiRiver_Duplicate' #Contains sample data for UMR survey
+# dir<-"E:/Git_Repo/MissRiver_Nitrogen"
+# flamedir<-'E:/Dropbox/FLAME_MississippiRiver/Data/2015_UMR_AllDays'
 
 #Calculate UMR Pool areas and volume
-source('R/SummarizeUMRPoolAreas.R')
+# source('R/SummarizeUMRPoolAreas.R')
 
 # Using Dataretrieval download USGS gauge station discharge for UMR survey
 source('R/DownloadConcurrentDischarge.R')
+
+#Loop through UMR data folders (datadir). Collect flame data and merge with LTER samples
+source('R/MergeWaterChemwithFlameSites.R')
 
 # merge tributary chemistry with flow
 source('R/CombineTribQandChemistry.R')
@@ -35,8 +41,7 @@ source('R/CalculateExpectedNO3TurbSPC.R')
 # Link discharge measurement with each flame measurement
 source('R/PlotLongitudinalProfileNO3TurbSPC_withExpected.R')
 
-#Loop through UMR data folders (datadir). Collect flame data and merge with LTER samples
-source('R/MergeWaterChemwithFlameSites.R')
+
 
 #Load LTRM NO3 data, merge with LTER data and plot timeseries
 source('R/PlotLTRM_NO3Timeseries.R')
@@ -53,3 +58,5 @@ source('R/ModelNRetentionPool8.R')
 #Plot NO3 retention in Pool 8
 source('R/PlotRetentionPool8.R')
 
+#Merge Nitrous Oxide data and plot three panel Lake Pepin figure
+source('R/MergeN2OData.R')
