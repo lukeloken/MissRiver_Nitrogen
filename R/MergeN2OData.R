@@ -11,7 +11,7 @@ library(maptools)
 #Select file name
 file<-'UMR_AllDays_ChannelOnly_Centered'
 
-N2Odata<-read.csv(paste(datadir, '/Data/2015_UMR_AllDays/N2O_Sat_2015_withTime.csv', sep=''), header=TRUE)
+N2Odata<-read.csv('Data/N2O_Sat_2015_withTime.csv', header=TRUE)
 summary(N2Odata)
 
 #Fix DateTime format
