@@ -6,12 +6,14 @@ setwd("E:/Git_Repo/MissRiver_Nitrogen")
 #Project Direcotries
 
 shapedir<-"E:/Dropbox/FLAME/basemaps/shapefiles" # contains Pool shapefiles (bathy and area)
-locdir<-"E:/Dropbox/ArcGIS" #contains linear referenced tables (data, tribs, dams)
+
+locdir<-"Data/LinearReferencedData"
 
 # datadir<-'E:/Dropbox/FLAME_MississippiRiver' #Contains most sample data
 # datadir_dup<-'E:/Dropbox/FLAME_MississippiRiver_Duplicate' #Contains sample data for UMR survey
 # dir<-"E:/Git_Repo/MissRiver_Nitrogen"
 # flamedir<-'E:/Dropbox/FLAME_MississippiRiver/Data/2015_UMR_AllDays'
+# locdir<-"E:/Dropbox/ArcGIS" #contains linear referenced tables (data, tribs, dams)
 
 #Calculate UMR Pool areas and volume
 # source('R/SummarizeUMRPoolAreas.R')
